@@ -1,47 +1,34 @@
 import { Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
+import persistStore from "redux-persist/es/persistStore";
 
-function HomeScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Home!</Text>
-    </View>
-  );
-}
+import Store from './Store/configureStore';
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import Identification from './Components/Identification/Identification';
 
-function SettingsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
+const Stack = createNativeStackNavigator();
 
-const Tab = createBottomTabNavigator();
+const linking = {
+  prefixes: ['magazette://']
+};
 
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ tabBarIcon: makeIconRender("home") }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{ tabBarIcon: makeIconRender("cog") }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
-}
-
-function makeIconRender(name) {
-  return ({ color, size }) => (
-    <MaterialCommunityIcons name={name} color={color} size={size} />
-  );
+export default class App extends React.Component {
+  render(){
+    let persistor = persistStore(Store);
+    return (
+      <Provider store={Store}>
+        <PersistGate persistor={persistor}>
+          <NavigationContainer linking={linking}>
+            <Stack.Navigator screenOptions={{headerShown: false}}>
+              <Stack.Screen name="Identification" component={Identification} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PersistGate>
+      </Provider>
+    )
+  }
 }
